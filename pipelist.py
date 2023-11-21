@@ -1,4 +1,5 @@
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import pandas as pd
 import numpy as np
 
@@ -52,3 +53,35 @@ class SeparateDataFrames(BaseEstimator, TransformerMixin):
 
     def transform(self, df):
         return [df.xs(i) for i in df.index.get_level_values(0).unique().to_list()]
+
+
+# EXPERIMENTAL
+class PL_StandardScaler(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        self.scaler = StandardScaler().set_output(transform="pandas")
+        return None
+
+    def fit(self, dflist, y=None):
+        self.scaler._reset()
+        for df in dflist:
+            self.scaler.partial_fit(df)
+        return self
+
+    def transform(self, dflist):
+        return [self.scaler.transform(df) for df in dflist]
+
+
+# EXPERIMENTAL
+class PL_MinMaxScaler(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        self.scaler = MinMaxScaler().set_output(transform="pandas")
+        return None
+
+    def fit(self, dflist, y=None):
+        self.scaler._reset()
+        for df in dflist:
+            self.scaler.partial_fit(df)
+        return self
+
+    def transform(self, dflist):
+        return [self.scaler.transform(df) for df in dflist]
