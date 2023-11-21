@@ -1,6 +1,6 @@
 # virtual-sensing-utils
 
-
+Bagpipe - scikit-learn powered preprocessing for listed dataframes (sequences erwähnen oder einbauen)
 
 ## Getting started
 
