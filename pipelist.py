@@ -39,7 +39,7 @@ class ApplyThreshold(BaseEstimator, TransformerMixin):
         return new_dflist
 
 
-class ConcatDataFrames(BaseEstimator, TransformerMixin):
+class _ConcatDataFrames(BaseEstimator, TransformerMixin):
     def fit(self, dflist, y=None):
         return self
 
@@ -47,7 +47,7 @@ class ConcatDataFrames(BaseEstimator, TransformerMixin):
         return pd.concat(dflist, keys=np.arange(0, len(dflist), 1))
 
 
-class SeparateDataFrames(BaseEstimator, TransformerMixin):
+class _SeparateDataFrames(BaseEstimator, TransformerMixin):
     def fit(self, dflist, y=None):
         return self
 
