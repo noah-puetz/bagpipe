@@ -44,8 +44,10 @@ class Test_ApplyThreshold(unittest.TestCase):
         dflist = [df1, df2]
 
         result = self.transformer.transform(dflist)
+
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 6)
+
         for res in result:
             self.assertIsInstance(res, pd.DataFrame)
             self.assertEqual(len(res), 2)
@@ -115,6 +117,37 @@ class Test_BagpipePipline(unittest.TestCase):
             pd.Series(expected_minmax_values.flatten()),
             check_names=False,
         )
+
+
+class Test_Concat_Seperate(unittest.TestCase):
+    def setUp(self):
+        self.df1 = pd.DataFrame(
+            {
+                "value": [1, 10, 1, 1, 10, 1, 5, 5, 5],
+            }
+        )
+        self.df2 = pd.DataFrame(
+            {
+                "value": [10, 1, 2, 4, 10, 3, 5, 6, 9],
+            }
+        )
+        self.dflist = [self.df1, self.df2]
+
+    def test_concat_seperate(self):
+        concat = _ConcatDataFrames()
+        result = concat.transform(self.dflist)
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(len(result), 18)
+
+        seperate = _SeparateDataFrames()
+        result = seperate.transform(result)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 2)
+        for i, res in enumerate(result):
+            self.assertIsInstance(res, pd.DataFrame)
+            self.assertEqual(len(res), 9)
+            pd.testing.assert_frame_equal(res, self.dflist[i])
 
 
 if __name__ == "__main__":
