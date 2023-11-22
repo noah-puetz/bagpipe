@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: bagpipe-python
+Version: 0.0.5
+Summary: Bagpipe is a scikit-learn powered preprocessing library for listed dataframes based on the pipline structure of sklearn.
+Author-email: Noah Puetz <noah_christoph.puetz@th-koeln.de>, Jens Brandt <jens_uwe.brandt@th-koeln.de>
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# BagPipe
+
+Bagpipe is a scikit-learn powered preprocessing library for listed dataframes based on the pipline structure of sklearn. It provides a set of specialized new transformers which can be used in addition to exsisting sklearn transformers, making it easier for handling datasets containing different csv in a sequence based setting.

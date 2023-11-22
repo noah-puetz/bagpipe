@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bagpipe"]
+
+[project]
+name = "bagpipe-python"
+version = "0.0.5"
+authors = [
+    { name = "Noah Puetz", email = "noah_christoph.puetz@th-koeln.de" },
+    { name = "Jens Brandt", email = "jens_uwe.brandt@th-koeln.de" },
+]
+
+description = """\ 
+Bagpipe is a scikit-learn powered preprocessing library for listed dataframes based on the pipline structure of sklearn.
+"""
+
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
