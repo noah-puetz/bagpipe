@@ -11,39 +11,51 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 
 
+df1 = pd.DataFrame(
+    {
+        "value_1": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "value_2": [10, 20, 30, 40, 50, 60, 70, 80, 90],
+        "value_3": [1, 10, 10, 5, 10, 10, 3, 10, 10],
+    },
+)
+
+df2 = pd.DataFrame(
+    {
+        "value_1": [11, 12, 13, 14, 15, 16, 17, 18, 19],
+        "value_2": [20, 30, 40, 50, 60, 70, 80, 90, 99],
+        "value_3": [1, 10, 10, 5, 10, 10, 3, 10, 10],
+    },
+)
+
+
 class Test_ApplyThreshold(unittest.TestCase):
     def setUp(self):
-        self.transformer = ApplyThreshold(by="value", threshold=5)
+        self.transformer_v1 = ApplyThreshold(by="value_1", threshold=5)
+        self.transformer_v2 = ApplyThreshold(by="value_3", threshold=5)
 
     def test_threshold_condition(self):
-        df = pd.DataFrame({"value": [1, 2, 3, 4, 5, 6, 7, 8, 9]})
         expected_result = pd.Series(
             [False, False, False, False, False, True, True, True, True]
         )
-        result = self.transformer._threshold_condition(df)
+        result = self.transformer_v1._threshold_condition(df1)
         pd.testing.assert_series_equal(result, expected_result, check_names=False)
 
     def test_process_group(self):
-        df = pd.DataFrame({"value": [1, 2, 3, 4, 5, 6, 7, 8, 9]})
-        expected_result = df
-        result = self.transformer._process_group(df)
+        expected_result = df1
+        result = self.transformer_v1._process_group(df1)
         pd.testing.assert_frame_equal(result, expected_result)
 
     def test_transform(self):
-        df1 = pd.DataFrame({"value": [1, 2, 3, 4, 5, 6, 7, 8, 9]})
-        df2 = pd.DataFrame({"value": [10, 20, 30, 40, 50, 60, 70, 80, 90]})
         dflist = [df1, df2]
-        expected_result = [df1[df1["value"] > 5], df2]
-        result = self.transformer.transform(dflist)
+        expected_result = [df1[df1["value_1"] > 5], df2]
+        result = self.transformer_v1.transform(dflist)
         for res, exp in zip(result, expected_result):
             pd.testing.assert_frame_equal(res, exp)
 
     def test_threshold_cutting(self):
-        df1 = pd.DataFrame({"value": [1, 10, 10, 5, 10, 10, 3, 10, 10]})
-        df2 = pd.DataFrame({"value": [1, 10, 10, 5, 10, 10, 3, 10, 10]})
         dflist = [df1, df2]
 
-        result = self.transformer.transform(dflist)
+        result = self.transformer_v2.transform(dflist)
 
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 6)
@@ -59,6 +71,7 @@ class Test_BagpipePipline(unittest.TestCase):
             {
                 "minmax_value": [1, 10, 1, 1, 10, 1, 5, 5, 5],
                 "stand_value": [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+                "remainder": [1, 2, 3, 4, 5, 6, 7, 8, 9],
             }
         )
 
@@ -98,40 +111,45 @@ class Test_BagpipePipline(unittest.TestCase):
 
     def _test_pipline_results(self, result_df_ls):
         self.assertIsInstance(result_df_ls, list)
-        self.assertIsInstance(result_df_ls[0], pd.DataFrame)
+        for res in result_df_ls:
+            self.assertIsInstance(res, pd.DataFrame)
 
         self.assertEqual(len(result_df_ls), 2)
-        self.assertEqual(result_df_ls[0].shape, self.df.shape)
+        for res in result_df_ls:
+            self.assertEqual(res.shape, self.df.shape)
 
         stand_scaler = StandardScaler()
         minmax_scaler = MinMaxScaler()
         expected_stand_values = stand_scaler.fit_transform(self.df[["stand_value"]])
         expected_minmax_values = minmax_scaler.fit_transform(self.df[["minmax_value"]])
-        pd.testing.assert_series_equal(
-            result_df_ls[0]["stand_value"],
-            pd.Series(expected_stand_values.flatten()),
-            check_names=False,
-        )
-        pd.testing.assert_series_equal(
-            result_df_ls[0]["minmax_value"],
-            pd.Series(expected_minmax_values.flatten()),
-            check_names=False,
-        )
+
+        for pd_df in result_df_ls:
+            self.assertTrue("stand_value" in pd_df.columns)
+            self.assertTrue("minmax_value" in pd_df.columns)
+            self.assertTrue("remainder" in pd_df.columns)
+
+            pd.testing.assert_series_equal(
+                pd_df["stand_value"],
+                pd.Series(expected_stand_values.flatten()),
+                check_names=False,
+            )
+
+            pd.testing.assert_series_equal(
+                pd_df["minmax_value"],
+                pd.Series(expected_minmax_values.flatten()),
+                check_names=False,
+            )
+
+            pd.testing.assert_series_equal(
+                pd_df["remainder"],
+                self.df["remainder"],
+                check_names=False,
+            )
 
 
 class Test_Concat_Seperate(unittest.TestCase):
     def setUp(self):
-        self.df1 = pd.DataFrame(
-            {
-                "value": [1, 10, 1, 1, 10, 1, 5, 5, 5],
-            }
-        )
-        self.df2 = pd.DataFrame(
-            {
-                "value": [10, 1, 2, 4, 10, 3, 5, 6, 9],
-            }
-        )
-        self.dflist = [self.df1, self.df2]
+        self.dflist = [df1, df2]
 
     def test_concat_seperate(self):
         concat = _ConcatDataFrames()
